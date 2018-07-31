@@ -1,0 +1,139 @@
+
+### ST445 Managing and Visualizing Data
+# Creating and managing databases
+### Week 3 Lab, MT 2017
+
+## Connecting to an SQL database or `connections` and `cursors`
+
+1. Connect to a file or server (depending on SQL implementation)
+2. Create a __cursor__: This is the actual connection to the DB
+    
+3. Execute a query
+4. Retrieve results
+
+5. REPEAT 3,4 until finished
+
+6. Close cursor
+7. Close connection
+
+## Creating an SQLite database in R
+
+
+```python
+import sqlite3
+
+con = sqlite3.connect(':memory:')  # Creates DB in memory
+
+cursor = con.cursor()
+```
+
+## The `with` Statement
+
+- This code pattern is very common:
+    ```python
+    f = open('myfile.txt')
+    # arbitrary code block; e.g.
+    content = f.read()
+    f.close()
+    ```
+- The `with` statements simplifies them by automatically calling `close()` or another appropriate method
+    ```python
+    with open('myfile.txt') as f:
+        # arbitrary code block; e.g.
+        content = f.read()
+    ```
+- NB: `f.close()` __is called__ when the indented block exits (even if the block raises an error!)
+
+
+- References: [Language reference](https://docs.python.org/3/reference/compound_stmts.html#the-with-statement),
+[PEP343](https://www.python.org/dev/peps/pep-0343/)
+
+
+## Using `with` to Simplify DB Code
+
+#### Two with statments
+
+```python
+with sqlite3.connect(':memory:') as con:
+    with con:
+        con.execute(SQL)
+```
+
+#### One with statments (__preferred__)
+
+```python
+con = sqlite3.connect(':memory:')
+with con:
+    con.execute(SQL)
+con.close()
+```
+
+## Passing parameters to `execute`
+
+- You often want to pass parameters to `execute`, e.g. when inserting data into a table
+- __NEVER EVER__ pass parameters by string interpolation in Python
+
+    ```python
+    # this won't end well
+    cursor.execute('INSERT INTO t1 ({}, {})'.format(1, 'horrible'))
+    # neither will this
+    cursor.execute('INSERT INTO t1 (%i, %s)' % (2, 'failure'))
+    ```
+
+<center class="stretch">![](figs/xckd327.png)</center>
+
+### Passing parameters to `execute` (2)
+
+- This is the one and only correct way of passing parameters
+    ```python
+    cur.execute('INSERT INTO t1 (?, ?)', (3, 'good'))
+    ```
+- Put a `?` in the SQL command where you want a parameter to be
+- Pass a tuple of values you want to insert as the second parameter
+
+<!-->invisible list separator<-->
+
+- Use a stray `,` to generate a tuple with a single member: `('abc', )`
+
+
+```python
+cursor.execute('SELECT ?', ('abc'))
+```
+
+
+    ---------------------------------------------------------------------------
+
+    ProgrammingError                          Traceback (most recent call last)
+
+    <ipython-input-26-4303bae29a8e> in <module>()
+    ----> 1 cursor.execute('SELECT ?', ('abc'))
+    
+
+    ProgrammingError: Incorrect number of bindings supplied. The current statement uses 1, and there are 3 supplied.
+
+
+
+```python
+cursor.execute('SELECT ?', ('abc', ))
+```
+
+- Beware: `tuple(my_value)` probably does not what you want
+
+
+```python
+tuple('abc')
+```
+
+
+```python
+tuple(1)
+```
+
+## Week 3 Assignment
+
+* Write a simple program in a Jupyter notebook and submit it on GitHub
+* Link to the assignment: [https://classroom.github.com/a/ZmAxfNMr](https://classroom.github.com/a/ZmAxfNMr)
+
+<!-->separator<-->
+
+- __IF YOU PASS PARAMETERS VIA PYTHON STRING INTERPOLATION YOU WILL RECEIVE A PENALTY__
