@@ -1,139 +1,81 @@
-
-### ST445 Managing and Visualizing Data
-# Creating and managing databases
-### Week 3 Lab, MT 2017
-
-## Connecting to an SQL database or `connections` and `cursors`
-
-1. Connect to a file or server (depending on SQL implementation)
-2. Create a __cursor__: This is the actual connection to the DB
+---
+title: "Working with RSQLite"
+author: "Kenneth Benoit (w/inspiration from **RSQLite** vignette)"
+output: github_document
+---
     
-3. Execute a query
-4. Retrieve results
-
-5. REPEAT 3,4 until finished
-
-6. Close cursor
-7. Close connection
-
-## Creating an SQLite database in R
-
-
-```python
-import sqlite3
-
-con = sqlite3.connect(':memory:')  # Creates DB in memory
-
-cursor = con.cursor()
+```{r, echo = FALSE}
+knitr::opts_chunk$set(comment = "##", collapse = TRUE)
 ```
 
-## The `with` Statement
+## Why and how to use RSQLite
 
-- This code pattern is very common:
-    ```python
-    f = open('myfile.txt')
-    # arbitrary code block; e.g.
-    content = f.read()
-    f.close()
-    ```
-- The `with` statements simplifies them by automatically calling `close()` or another appropriate method
-    ```python
-    with open('myfile.txt') as f:
-        # arbitrary code block; e.g.
-        content = f.read()
-    ```
-- NB: `f.close()` __is called__ when the indented block exits (even if the block raises an error!)
+- RSQLite is the easiest way to use a database from R because the package itself contains [SQLite](https://www.sqlite.org); no external software is needed.
 
+- RSQLite is a DBI-compatible interface which means you primarily use functions defined in the DBI package, so you should always start by loading DBI, not RSQLite:
 
-- References: [Language reference](https://docs.python.org/3/reference/compound_stmts.html#the-with-statement),
-[PEP343](https://www.python.org/dev/peps/pep-0343/)
-
-
-## Using `with` to Simplify DB Code
-
-#### Two with statments
-
-```python
-with sqlite3.connect(':memory:') as con:
-    with con:
-        con.execute(SQL)
+```{r}
+library("DBI")
 ```
 
-#### One with statments (__preferred__)
+## Creating a new database
 
-```python
-con = sqlite3.connect(':memory:')
-with con:
-    con.execute(SQL)
-con.close()
-```
-
-## Passing parameters to `execute`
-
-- You often want to pass parameters to `execute`, e.g. when inserting data into a table
-- __NEVER EVER__ pass parameters by string interpolation in Python
-
-    ```python
-    # this won't end well
-    cursor.execute('INSERT INTO t1 ({}, {})'.format(1, 'horrible'))
-    # neither will this
-    cursor.execute('INSERT INTO t1 (%i, %s)' % (2, 'failure'))
-    ```
-
-<center class="stretch">![](figs/xckd327.png)</center>
-
-### Passing parameters to `execute` (2)
-
-- This is the one and only correct way of passing parameters
-    ```python
-    cur.execute('INSERT INTO t1 (?, ?)', (3, 'good'))
-    ```
-- Put a `?` in the SQL command where you want a parameter to be
-- Pass a tuple of values you want to insert as the second parameter
-
-<!-->invisible list separator<-->
-
-- Use a stray `,` to generate a tuple with a single member: `('abc', )`
-
-
-```python
-cursor.execute('SELECT ?', ('abc'))
-```
-
-
-    ---------------------------------------------------------------------------
-
-    ProgrammingError                          Traceback (most recent call last)
-
-    <ipython-input-26-4303bae29a8e> in <module>()
-    ----> 1 cursor.execute('SELECT ?', ('abc'))
+To create a new SQLite database, you simply supply the filename to `dbConnect()`:
     
-
-    ProgrammingError: Incorrect number of bindings supplied. The current statement uses 1, and there are 3 supplied.
-
-
-
-```python
-cursor.execute('SELECT ?', ('abc', ))
+```{r}
+mydb <- dbConnect(RSQLite::SQLite(), "my-db.sqlite")
+dbDisconnect(mydb)
+unlink("my-db.sqlite")
 ```
 
-- Beware: `tuple(my_value)` probably does not what you want
+If you just need a temporary database, use either `""` (for an on-disk database) or `":memory:"` or `"file::memory:"` (for a in-memory database). This database will be automatically deleted when you disconnect from it.
 
+```{r}
+mydb <- dbConnect(RSQLite::SQLite(), "")
+dbDisconnect(mydb)
+```
 
-```python
-tuple('abc')
+## Adding data to the database
+
+1. Load a table using `read.csv()`
+
+```{r}
+airports <- read.csv("nycflights13/airports.csv")[, -1]
+planes <- read.csv("nycflights13/planes.csv")[, -1]
+```
+
+2. Add to the database using `dbWriteTable()`:
+    
+```{r}
+mydb <- dbConnect(RSQLite::SQLite(), "")
+dbWriteTable(mydb, "airports", airports)
+dbWriteTable(mydb, "planes", planes)
+dbListTables(mydb)
+```
+
+## Queries
+
+Queries in **RSQLite** pass SQL code directly, using `dbGetQuery()`:
+    
+```{r}
+dbGetQuery(mydb, 'SELECT * FROM airports LIMIT 5')
+```
+
+```{r}
+dbGetQuery(mydb, 'SELECT * FROM planes WHERE engines > 2')
 ```
 
 
-```python
-tuple(1)
+## Batched queries
+
+If you run a query and the results don't fit in memory, you can use `dbSendQuery()`, `dbFetch()` and `dbClearResults()` to retrieve the results in batches. By default `dbFetch()` will retrieve all available rows: use `n` to set the maximum number of rows to return.
+
+```{r}
+rs <- dbSendQuery(mydb, 'SELECT * FROM planes')
+while (!dbHasCompleted(rs)) {
+    df <- dbFetch(rs, n = 10)
+    print(nrow(df))
+}
+dbClearResult(rs)
 ```
 
-## Week 3 Assignment
-
-* Write a simple program in a Jupyter notebook and submit it on GitHub
-* Link to the assignment: [https://classroom.github.com/a/ZmAxfNMr](https://classroom.github.com/a/ZmAxfNMr)
-
-<!-->separator<-->
-
-- __IF YOU PASS PARAMETERS VIA PYTHON STRING INTERPOLATION YOU WILL RECEIVE A PENALTY__
