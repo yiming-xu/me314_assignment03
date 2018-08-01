@@ -102,6 +102,6 @@ b)  Replicate B2 above using an SQL query, including both the command and the ou
 
 [your answer]
 
-c)  Replicate B3 above using an SQL query, including both the command and the output.
+c) **(optional)** Replicate B3 above using an SQL query, including both the command and the output.
 
 [your answer]
