@@ -59,7 +59,20 @@ For this exercise, we will use the **nycflights13** R package, whose tables have
 a)  Create a subtable of the `flights` data, that departed before 05:53 on 2013-02-28.  How many rows and columns does this subtable have?  
 
 ```{r}
-## your code
+library("dplyr")
+library("lubridate")
+
+flights <- read.csv("nycflights13/flights.csv")
+
+flights$dep_datetime <- ymd_hm(sprintf("%s-%02d-%02d %02d:%02d",
+                            flights$year,
+                            flights$month,
+                            flights$day,
+                            flights$hour,
+                            flights$minute))
+flights_sub <- subset(flights, dep_datetime < ymd_hm("2013-02-28 05:53"))
+
+nrow(flights_sub)
 ```
 
 b)  Merge or join the subtable from a. `airports` data, to produce a result that includes:  
@@ -72,7 +85,7 @@ b)  Merge or join the subtable from a. `airports` data, to produce a result that
 ## your code
 ```
 
-c)  For every airline that had flights in the `flights` data compute the average age of the planes it flew from the entire dataset.  Age here will be defined as 2013 minus the `year` variable from the `planes` data.  Hint: This involves a join operation on `tailnum`, but also a grouped mean to compute the age (and subtracting 2013, which you can do before or after the computation of the mean).
+c) **(optional)** For every airline that had flights in the `flights` data compute the average age of the planes it flew from the entire dataset.  Age here will be defined as 2013 minus the `year` variable from the `planes` data.  Hint: This involves a join operation on `tailnum`, but also a grouped mean to compute the age (and subtracting 2013, which you can do before or after the computation of the mean).
 
 
 ```{r}

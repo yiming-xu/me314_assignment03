@@ -435,7 +435,33 @@ $(document).ready(function () {
 <ol style="list-style-type: lower-alpha">
 <li>Create a subtable of the <code>flights</code> data, that departed before 05:53 on 2013-02-28. How many rows and columns does this subtable have?</li>
 </ol>
-<pre class="r"><code>## your code</code></pre>
+<pre class="r"><code>library(&quot;dplyr&quot;)</code></pre>
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(&quot;lubridate&quot;)</code></pre>
+<pre><code>## 
+## Attaching package: 'lubridate'</code></pre>
+<pre><code>## The following object is masked from 'package:base':
+## 
+##     date</code></pre>
+<pre class="r"><code>flights &lt;- read.csv(&quot;nycflights13/flights.csv&quot;)
+
+flights$dep_datetime &lt;- ymd_hm(sprintf(&quot;%s-%02d-%02d %02d:%02d&quot;,
+                            flights$year,
+                            flights$month,
+                            flights$day, 
+                            flights$hour,
+                            flights$minute))
+flights_sub &lt;- subset(flights, dep_datetime &lt; ymd_hm(&quot;2013-02-28 05:53&quot;))
+
+nrow(flights_sub)</code></pre>
+<pre><code>## [1] 50996</code></pre>
 <ol start="2" style="list-style-type: lower-alpha">
 <li>Merge or join the subtable from a. <code>airports</code> data, to produce a result that includes:<br />
 </li>
@@ -448,7 +474,7 @@ $(document).ready(function () {
 </ul>
 <pre class="r"><code>## your code</code></pre>
 <ol start="3" style="list-style-type: lower-alpha">
-<li>For every airline that had flights in the <code>flights</code> data compute the average age of the planes it flew from the entire dataset. Age here will be defined as 2013 minus the <code>year</code> variable from the <code>planes</code> data. Hint: This involves a join operation on <code>tailnum</code>, but also a grouped mean to compute the age (and subtracting 2013, which you can do before or after the computation of the mean).</li>
+<li><strong>(optional)</strong> For every airline that had flights in the <code>flights</code> data compute the average age of the planes it flew from the entire dataset. Age here will be defined as 2013 minus the <code>year</code> variable from the <code>planes</code> data. Hint: This involves a join operation on <code>tailnum</code>, but also a grouped mean to compute the age (and subtracting 2013, which you can do before or after the computation of the mean).</li>
 </ol>
 <pre class="r"><code>## your code</code></pre>
 </div>
