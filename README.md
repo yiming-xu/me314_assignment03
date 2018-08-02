@@ -16,4 +16,6 @@ Work with the file [me314-assignment3-LASTNAME-FIRSTNAME.Rmd](me314-assignment3-
 
 ### Solutions
 
-Solutions to each assignment will be made available on the next day after each lab.
+Solution to Assignment 3 as:
+*  [html](solution/me314-assignment3-solution.html) 
+*  [RMarkdown](solution/me314-assignment3-solution.Rmd)  
