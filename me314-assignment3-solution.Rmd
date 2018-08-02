@@ -2,6 +2,7 @@
 # ME314 Managing and Visualizing Data
 
 ## Day 3 Assignment, LSE ME314 2018
+
 ---
 
 ### 1. Normalizing data
