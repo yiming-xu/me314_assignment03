@@ -17,5 +17,5 @@ Work with the file [me314-assignment3-LASTNAME-FIRSTNAME.Rmd](me314-assignment3-
 ### Solutions
 
 Solution to Assignment 3 as:
-*  [html](solution/me314-assignment3-solution.html) 
-*  [RMarkdown](solution/me314-assignment3-solution.Rmd)  
+*  [html](me314-assignment3-solution.html) 
+*  [RMarkdown](me314-assignment3-solution.Rmd)  
