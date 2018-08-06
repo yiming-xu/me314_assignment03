@@ -75,7 +75,7 @@ flights_sub <- subset(flights, dep_datetime < ymd_hm("2013-02-28 05:53"))
 nrow(flights_sub)
 ```
 
-b)  Merge or join the subtable from a. `airports` data, to produce a result that includes:  
+b)  Merge or join the subtable from a. `flights` data, to produce a result that includes:  
    *  Departure time
    *  Carrier (two digit code, from `carrier`)
    *  Flight number
